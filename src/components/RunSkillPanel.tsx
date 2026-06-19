@@ -1,10 +1,10 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { Database, FileText, PlayCircle, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Database, FileText, PlayCircle, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { createMockReport } from "@/data/mockReports";
 import { saveReport } from "@/data/localStore";
+import type { ApiErrorResponse, RunSkillResponse } from "@/types/api";
 import type { SkillDefinition } from "@/types/skill";
 
 export function RunSkillPanel({ skill }: { skill: SkillDefinition }) {
@@ -17,13 +17,40 @@ export function RunSkillPanel({ skill }: { skill: SkillDefinition }) {
 
   const [values, setValues] = useState<Record<string, string>>(initialValues);
   const [notice, setNotice] = useState("");
+  const [error, setError] = useState("");
+  const [isRunning, setIsRunning] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const nextReport = createMockReport(skill, values);
-    saveReport(nextReport);
-    setNotice("已生成 mock 报告，正在打开报告详情页。");
-    router.push(`/reports/${nextReport.id}`);
+    setError("");
+    setNotice("正在通过 Skill Runner API 生成 mock 报告...");
+    setIsRunning(true);
+
+    try {
+      const response = await fetch(`/api/skills/${skill.id}/run`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ input: values }),
+      });
+
+      const payload = (await response.json()) as RunSkillResponse | ApiErrorResponse;
+
+      if (!response.ok || "error" in payload) {
+        const details = "details" in payload && payload.details?.length ? `：${payload.details.join("、")}` : "";
+        throw new Error(`${"error" in payload ? payload.error : "Skill 运行失败"}${details}`);
+      }
+
+      saveReport(payload.report);
+      setNotice("已通过 Skill Runner API 生成 mock 报告，正在打开报告详情页。");
+      router.push(`/reports/${payload.reportId}`);
+    } catch (runError) {
+      setError(runError instanceof Error ? runError.message : "Skill 运行失败，请稍后重试。");
+      setNotice("");
+    } finally {
+      setIsRunning(false);
+    }
   }
 
   return (
@@ -76,15 +103,16 @@ export function RunSkillPanel({ skill }: { skill: SkillDefinition }) {
 
           <button
             type="submit"
+            disabled={isRunning}
             className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-signal px-4 text-sm font-semibold text-ink transition hover:bg-[#34d58c]"
           >
             <Database className="h-4 w-4" aria-hidden="true" />
-            生成 mock 研究报告
+            {isRunning ? "运行中..." : "生成 mock 研究报告"}
           </button>
         </form>
 
         <div className="mt-5 rounded-md border border-caution/30 bg-caution/10 p-4 text-sm leading-6 text-caution">
-          当前版本不接真实数据库、支付、交易 API 或 AI API。结果来自本地 mock 逻辑，仅用于产品路径验证。
+          当前版本不接真实数据库、支付、交易 API 或 AI API。前端会调用本地 Skill Runner API，后端暂时返回 mock 报告。
         </div>
       </section>
 
@@ -96,11 +124,18 @@ export function RunSkillPanel({ skill }: { skill: SkillDefinition }) {
           </div>
         ) : null}
 
+        {error ? (
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/10 p-4 text-sm text-danger">
+            <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+            {error}
+          </div>
+        ) : null}
+
         <div className="rounded-lg border border-line bg-panel p-8">
           <FileText className="h-6 w-6 text-zinc-500" aria-hidden="true" />
           <h2 className="mt-4 text-lg font-semibold text-white">生成后进入独立报告页</h2>
           <p className="mt-2 text-sm leading-6 text-zinc-400">
-            输入研究对象后，系统会保存一份本地 mock 报告，并跳转到报告详情页。你可以在那里查看完整结构、加入 Watchlist，之后也能从报告历史中找回。
+            输入研究对象后，前端会调用 `/api/skills/[id]/run`。当前 API 返回 mock 报告，前端保存到本地并跳转到报告详情页。
           </p>
         </div>
       </section>

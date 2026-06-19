@@ -35,6 +35,14 @@ http://localhost:3000
 - `crypto-meme-radar`
 - `polymarket-15m-trader-filter`
 
+## API
+
+- `GET /api/skills` 获取 Skill 列表
+- `GET /api/skills/[id]` 获取单个 Skill
+- `POST /api/skills/[id]/run` 运行 Skill
+
+当前 API 已经跑通 Skill Runner 结构，但返回结果仍是 mock 报告。后续接入 OpenAI 时，优先替换后端 runner，不需要大改前端页面。
+
 ## 环境变量
 
 第一版不需要真实环境变量即可运行。后续接入 OpenAI 或 Supabase 时，可以从 `.env.example` 复制：
@@ -51,7 +59,8 @@ Copy-Item .env.example .env.local
 - 中文 SaaS / 金融研究终端风格页面
 - 3 个本地 mock Skill
 - Skill 列表、详情、运行页
-- 本地 mock 报告生成，并跳转到独立报告页
+- Skill Runner API 化，前端通过 `/api/skills/[id]/run` 生成 mock 报告
+- 报告生成后跳转到独立报告页
 - 报告历史 localStorage 临时保存
 - Watchlist localStorage 临时保存
 - 全站合规免责声明
