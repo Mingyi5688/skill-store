@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { Activity, BookOpen, Building2, Info, Store } from "lucide-react";
+import { Activity, BookOpen, Building2, Eye, FileText, Info, Store } from "lucide-react";
 
 const navItems = [
   { href: "/skills", label: "Skill 商店", icon: Store },
+  { href: "/reports", label: "报告历史", icon: FileText },
+  { href: "/watchlist", label: "Watchlist", icon: Eye },
   { href: "/creator", label: "创作者入驻", icon: Building2 },
   { href: "/about", label: "关于", icon: Info },
 ];
@@ -18,7 +20,7 @@ export function Navbar() {
           <span>Invest Skill Store</span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (

@@ -23,6 +23,9 @@ http://localhost:3000
 - `/skills` Skill 商店页
 - `/skills/[id]` Skill 详情页
 - `/run/[id]` Skill 运行页
+- `/reports` 报告历史页
+- `/reports/[id]` 报告详情页
+- `/watchlist` Watchlist 观察池
 - `/creator` 创作者入驻页
 - `/about` 关于页
 
@@ -48,7 +51,8 @@ Copy-Item .env.example .env.local
 - 中文 SaaS / 金融研究终端风格页面
 - 3 个本地 mock Skill
 - Skill 列表、详情、运行页
-- 本地 mock 报告生成
+- 本地 mock 报告生成，并跳转到独立报告页
+- 报告历史 localStorage 临时保存
 - Watchlist localStorage 临时保存
 - 全站合规免责声明
 

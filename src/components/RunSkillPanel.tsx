@@ -1,32 +1,14 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { Database, PlayCircle, Save, ShieldCheck } from "lucide-react";
+import { Database, FileText, PlayCircle, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { createMockReport } from "@/data/mockReports";
-import { ReportView } from "@/components/ReportView";
-import type { ResearchReport, WatchlistItem } from "@/types/report";
+import { saveReport } from "@/data/localStore";
 import type { SkillDefinition } from "@/types/skill";
 
-const reportsKey = "invest-skill-store:reports";
-const watchlistKey = "invest-skill-store:watchlist";
-
-function readList<T>(key: string): T[] {
-  if (typeof window === "undefined") return [];
-
-  try {
-    const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeList<T extends { id: string }>(key: string, item: T) {
-  const next = [item, ...readList<T>(key).filter((existing) => existing.id !== item.id)];
-  window.localStorage.setItem(key, JSON.stringify(next.slice(0, 20)));
-}
-
 export function RunSkillPanel({ skill }: { skill: SkillDefinition }) {
+  const router = useRouter();
   const initialValues = useMemo(() => {
     return Object.fromEntries(
       skill.inputFields.map((field) => [field.name, field.type === "select" ? field.options?.[0] ?? "" : ""]),
@@ -34,36 +16,14 @@ export function RunSkillPanel({ skill }: { skill: SkillDefinition }) {
   }, [skill.inputFields]);
 
   const [values, setValues] = useState<Record<string, string>>(initialValues);
-  const [report, setReport] = useState<ResearchReport | null>(null);
   const [notice, setNotice] = useState("");
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextReport = createMockReport(skill, values);
-    writeList(reportsKey, nextReport);
-    setReport(nextReport);
-    setNotice("已生成 mock 报告，并保存到当前浏览器。");
-  }
-
-  function addPrimaryCandidateToWatchlist() {
-    if (!report || report.candidates.length === 0) return;
-    const candidate = report.candidates[0];
-    const item: WatchlistItem = {
-      id: `${report.id}:${candidate.name}`,
-      reportId: report.id,
-      assetName: candidate.name,
-      assetSymbol: candidate.symbol,
-      market: values.market || values.timeframe || "公开市场",
-      sourceSkill: skill.name,
-      thesis: report.thesis,
-      evidenceScore: candidate.evidenceScore,
-      riskLevel: candidate.riskLevel,
-      status: candidate.watchOrReject === "reject" ? "不进入观察池" : "研究观察中",
-      addedAt: new Date().toISOString(),
-    };
-
-    writeList(watchlistKey, item);
-    setNotice("已把首个候选对象加入本地 Watchlist。");
+    saveReport(nextReport);
+    setNotice("已生成 mock 报告，正在打开报告详情页。");
+    router.push(`/reports/${nextReport.id}`);
   }
 
   return (
@@ -136,25 +96,13 @@ export function RunSkillPanel({ skill }: { skill: SkillDefinition }) {
           </div>
         ) : null}
 
-        {report ? (
-          <div className="space-y-4">
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={addPrimaryCandidateToWatchlist}
-                className="inline-flex h-10 items-center gap-2 rounded-md border border-white/15 px-4 text-sm font-medium text-white transition hover:border-white/30 hover:bg-white/5"
-              >
-                <Save className="h-4 w-4" aria-hidden="true" />
-                加入 Watchlist
-              </button>
-            </div>
-            <ReportView report={report} />
-          </div>
-        ) : (
-          <div className="rounded-lg border border-line bg-panel p-8">
-            <p className="text-sm text-zinc-400">报告将在这里生成。输入研究对象后，会展示摘要、证据链、反证条件、候选观察对象和风险提示。</p>
-          </div>
-        )}
+        <div className="rounded-lg border border-line bg-panel p-8">
+          <FileText className="h-6 w-6 text-zinc-500" aria-hidden="true" />
+          <h2 className="mt-4 text-lg font-semibold text-white">生成后进入独立报告页</h2>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">
+            输入研究对象后，系统会保存一份本地 mock 报告，并跳转到报告详情页。你可以在那里查看完整结构、加入 Watchlist，之后也能从报告历史中找回。
+          </p>
+        </div>
       </section>
     </div>
   );
