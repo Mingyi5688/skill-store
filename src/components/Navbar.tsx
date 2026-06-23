@@ -1,11 +1,26 @@
 import Link from "next/link";
-import { Activity, BookOpen, Building2, Eye, FileText, Info, Store } from "lucide-react";
+import {
+  Activity,
+  BadgeDollarSign,
+  BarChart3,
+  BookOpen,
+  Bot,
+  Building2,
+  Info,
+  ListOrdered,
+  Swords,
+  Store,
+} from "lucide-react";
 
 const navItems = [
+  { href: "/", label: "首页", icon: Activity },
   { href: "/skills", label: "Skill 商店", icon: Store },
-  { href: "/reports", label: "报告历史", icon: FileText },
-  { href: "/watchlist", label: "Watchlist", icon: Eye },
-  { href: "/creator", label: "创作者入驻", icon: Building2 },
+  { href: "/markets", label: "市场", icon: BarChart3 },
+  { href: "/arena", label: "Arena 对决", icon: Swords },
+  { href: "/leaderboards", label: "排行榜", icon: ListOrdered },
+  { href: "/agents", label: "Agent 监控", icon: Bot },
+  { href: "/creator", label: "创作者", icon: Building2 },
+  { href: "/pricing", label: "会员", icon: BadgeDollarSign },
   { href: "/about", label: "关于", icon: Info },
 ];
 

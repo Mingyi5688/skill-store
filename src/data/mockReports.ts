@@ -74,132 +74,75 @@ export function createMockReport(
     };
   }
 
-  if (skill.id === "polymarket-15m-trader-filter") {
-    return {
-      id: commonId(),
-      title: `${target} Polymarket 15min Crypto 交易员行为研究`,
-      generatedAt: new Date().toISOString(),
-      skillId: skill.id,
-      skillName: skill.name,
-      input,
-      executiveSummary:
-        `${target} 的 mock 筛选结果显示：当前更适合进入 selective_15m_review，而不是直接进入 watchlist。原因是 15min Crypto 子集需要单独验证，不能把全市场表现直接外推到短周期市场。`,
-      thesis:
-        "只有当 PnL 1D / 1W / 1M / 1Y 全部为正，且 15min Crypto 子集样本充足、ROI 稳定、追高风险可控时，才考虑进入观察池。",
-      industryChain: [
-        {
-          layer: "账户表现层",
-          description: "检查主页 PnL 周期、ROI、胜率和最大回撤。",
-          keyPlayers: ["交易员账户", "公开交易历史"],
-        },
-        {
-          layer: "市场子集层",
-          description: "单独拆分 15min Crypto 交易，避免混合市场收益掩盖真实能力。",
-          keyPlayers: ["15min Crypto 市场", "混合市场订单"],
-        },
-      ],
-      bottlenecks: [
-        {
-          name: "PnL 周期一致性",
-          whyItMatters: "任一周期为负时，账号稳定性不足，不应进入 watchlist。",
-          evidence: ["需要核对 1D / 1W / 1M / 1Y", "需要核对 15min 子集样本数"],
-          beneficiaries: ["复查流程", "观察池质量控制"],
-          risk: "样本过小或只在少数行情中有效，容易误判交易员质量。",
-        },
-      ],
-      candidates: [
-        {
-          name: target,
-          reason: "可进入 selective_15m_review，等待 15-30 分钟后复查周期 PnL 与订单价格。",
-          evidenceScore: 0.64,
-          riskLevel: "medium",
-          watchOrReject: "review",
-        },
-      ],
-      counterEvidence: [
-        "任一 PnL 周期转负。",
-        "15min Crypto 样本不足。",
-        "出现明显高价追单或极端赔率下注。",
-        "收益主要来自非 Crypto 市场。",
-      ],
-      trackingSignals: ["PnL 1D", "PnL 1W", "PnL 1M", "PnL 1Y", "15min Crypto 占比", "高价追单比例"],
-      riskWarnings: ["不提供跟单建议", "公开页面可能滞后", "交易员历史表现不代表未来结果"],
-      finalStatus: "selective_15m_review",
-      riskLevel: "medium",
-      disclaimer: complianceDisclaimer,
-    };
-  }
-
   return {
     id: commonId(),
-    title: `${target} 供应链卡点研究报告`,
+    title: `${target} ${skill.name} mock 研究报告`,
     generatedAt: new Date().toISOString(),
     skillId: skill.id,
     skillName: skill.name,
     input,
     executiveSummary:
-      `${target} 仍适合从产业链瓶颈角度继续研究。mock 报告认为，主线不应只看单一公司或单一产品，而要把需求来源、上游约束、关键材料/产能、二阶受益环节和反证条件拆开。`,
+      `${target} 仍适合进入结构化研究流程。mock 报告认为，当前不能把单一异动直接等同为行动信号，需要把驱动因素、证据强度、相关资产、风险等级和反证条件拆开。`,
     thesis:
-      "如果终端需求继续扩张，而关键产能、材料或基础设施供给无法同步释放，则靠近瓶颈的环节更值得进入研究候选池。",
+      "如果核心驱动能够被多条公开证据交叉验证，且反证条件暂未触发，该对象可进入研究候选池；若证据只来自单一渠道，应保持谨慎观察。",
     industryChain: [
       {
-        layer: "上游",
-        description: "核心材料、制造能力、先进封装、设备和能源基础设施。",
-        keyPlayers: ["晶圆制造", "先进封装", "HBM", "电力设备", "散热"],
+        layer: "核心驱动",
+        description: "拆解当前研究对象的主要催化、需求来源、资金关注度或宏观背景。",
+        keyPlayers: ["公开公告", "财报线索", "宏观指标", "市场异动"],
       },
       {
-        layer: "中游",
-        description: "芯片、服务器、网络互联、系统集成和产能调度。",
-        keyPlayers: ["GPU", "服务器厂商", "光模块", "交换机"],
+        layer: "证据层",
+        description: "用公开资料、用户补充材料和市场表现交叉验证，不把单一叙事当成结论。",
+        keyPlayers: ["公司披露", "行业新闻", "成交变化", "公开研究摘要"],
       },
       {
-        layer: "下游",
-        description: "云厂商、企业 AI 应用、训练和推理需求。",
-        keyPlayers: ["云服务商", "AI 应用公司", "企业客户"],
+        layer: "风险层",
+        description: "列出可能推翻当前研究假设的反证条件，避免把报告当作确定性指令。",
+        keyPlayers: ["估值消化", "政策变化", "流动性变化", "基本面转弱"],
       },
     ],
     bottlenecks: [
       {
-        name: "先进封装 / 高带宽内存",
+        name: "证据强度不足",
         whyItMatters:
-          "高端 AI 算力扩张依赖封装、HBM 和供应链协同，任何环节扩产滞后都可能形成供给约束。",
-        evidence: ["扩产周期较长", "高端产能集中", "客户需求仍在迁移到 AI 算力"],
-        beneficiaries: ["先进封装供应链", "HBM 供应链", "设备材料公司"],
-        risk: "如果产能快速释放或终端资本开支下调，瓶颈逻辑会削弱。",
+          "如果研究结论只来自单一新闻、短期价格波动或社媒讨论，后续复盘容易出现方向性误判。",
+        evidence: ["出现公开催化", "市场关注度上升", "相关资产被多个 Skill 关注"],
+        beneficiaries: ["研究清单", "Watchlist", "Agent 监控"],
+        risk: "若公开证据无法延续，当前研究假设需要降级。",
       },
       {
-        name: "数据中心电力与散热",
-        whyItMatters:
-          "AI 服务器功耗提升会把研究重点从芯片本身扩散到电力、散热和数据中心基础设施。",
-        evidence: ["数据中心能耗上升", "高功率机柜渗透", "云厂商基础设施投入增加"],
-        beneficiaries: ["电力设备", "散热方案", "数据中心基础设施"],
-        risk: "若建设节奏放缓或利用率低于预期，二阶受益逻辑可能延后。",
+        name: "风险边界需要持续更新",
+        whyItMatters: "股票、加密、外汇、期货和宏观资产都可能受突发事件影响，研究结论需要动态复查。",
+        evidence: ["波动率变化", "成交量变化", "相关宏观指标变化"],
+        beneficiaries: ["风险提示", "反证条件", "后续观察指标"],
+        risk: "如果风险事件触发，原有候选方向应转入复查而非继续强化。",
       },
     ],
     candidates: [
       {
-        name: `${target} 相关上游瓶颈环节`,
-        reason: "更接近供给约束，适合作为研究候选方向，而不是直接交易信号。",
+        name: `${target} 相关研究对象`,
+        reason: "存在可整理的公开信号，适合作为研究候选方向，而不是直接交易信号。",
         evidenceScore: 0.72,
         riskLevel: "medium",
         watchOrReject: "watch",
       },
       {
-        name: "纯概念热点标的",
-        reason: "缺少订单、产能或客户验证，当前更像叙事扩散。",
+        name: "单一叙事驱动对象",
+        reason: "缺少多来源验证，当前更像短期叙事扩散。",
         evidenceScore: 0.34,
         riskLevel: "high",
         watchOrReject: "reject",
       },
     ],
     counterEvidence: [
-      "终端客户资本开支明显下调。",
-      "关键产能快速释放，瓶颈不再稀缺。",
-      "订单能见度下降或毛利率持续下滑。",
-      "主题估值已经充分反映乐观预期。",
+      "核心公开证据无法延续。",
+      "相关资产成交量或关注度快速回落。",
+      "财报、公告或宏观数据与原假设相反。",
+      "风险事件改变市场定价逻辑。",
     ],
-    trackingSignals: ["云厂商资本开支", "先进封装产能", "HBM 供需", "电力设备订单", "毛利率变化"],
-    riskWarnings: ["不要把研究候选等同于买入建议", "mock 报告不含实时财务数据", "需要人工核对公开来源"],
+    trackingSignals: ["公开公告", "成交量变化", "相关资产联动", "宏观指标变化", "用户手动复盘"],
+    riskWarnings: ["不要把研究候选等同于买卖建议", "mock 报告不含实时行情或真实财务数据", "需要人工核对公开来源"],
     finalStatus: "research_candidate",
     riskLevel: "medium",
     disclaimer: complianceDisclaimer,

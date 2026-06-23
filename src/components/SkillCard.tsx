@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, PlayCircle, Star } from "lucide-react";
+import { ArrowRight, Bot, PlayCircle, Star, Zap } from "lucide-react";
 import { formatCompactNumber } from "@/components/utils";
 import { StatusBadge } from "@/components/StatusBadge";
 import type { SkillDefinition } from "@/types/skill";
@@ -12,6 +12,12 @@ export function SkillCard({ skill }: { skill: SkillDefinition }) {
         <span className="rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-zinc-300">
           {skill.priceLabel}
         </span>
+        {skill.supportsAgent ? (
+          <span className="inline-flex items-center gap-1 rounded-md border border-signal/30 bg-signal/10 px-2.5 py-1 text-xs text-signal">
+            <Bot className="h-3.5 w-3.5" aria-hidden="true" />
+            Agent
+          </span>
+        ) : null}
       </div>
 
       <h3 className="text-lg font-semibold text-white">{skill.name}</h3>
@@ -30,9 +36,17 @@ export function SkillCard({ skill }: { skill: SkillDefinition }) {
           <p className="text-zinc-500">评分</p>
           <p className="mt-1 inline-flex items-center gap-1 text-zinc-200">
             <Star className="h-3.5 w-3.5 text-caution" aria-hidden="true" />
-            {skill.rating.toFixed(1)}
+            {skill.ratingAvg.toFixed(1)}
           </p>
         </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+        <span className="inline-flex items-center gap-1 rounded-md bg-white/5 px-2 py-1">
+          <Zap className="h-3.5 w-3.5 text-caution" aria-hidden="true" />
+          约 {skill.tokenEstimate} Token
+        </span>
+        <span>{skill.ratingCount} 条评价</span>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
